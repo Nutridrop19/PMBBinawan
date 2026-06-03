@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi PMB Universitas Binawan</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:linear-gradient(135deg,#0f8f4f,#f7c948);padding:25px}
+.container{max-width:1300px;margin:auto}
+.hero{background:linear-gradient(135deg,#0f8f4f,#1ab766);padding:40px;border-radius:28px;text-align:center;color:#fff;box-shadow:0 15px 35px rgba(0,0,0,.15)}
+.hero img{max-width:320px;width:90%;margin-bottom:15px}
+.card{background:#fff;margin-top:20px;padding:25px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.field{background:#fff;border:1px solid #eee;padding:15px;border-radius:16px}
+label{display:block;font-weight:600;margin-bottom:8px}
+select{width:100%;padding:12px;border-radius:10px;border:2px solid #e8e8e8}
+.checks label{font-weight:400;margin-bottom:5px}
+button{width:100%;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#0f8f4f,#1ab766);color:#fff;font-weight:700;margin-top:20px;cursor:pointer}
+.result{margin-top:20px;background:#f8fff9;padding:20px;border-radius:20px}
+.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee}
+.total{margin-top:20px;background:linear-gradient(135deg,#0f8f4f,#1ab766);color:white;padding:20px;border-radius:18px}
+.total h2{font-size:34px}
+.cicilan{margin-top:15px;background:#fff8dc;padding:15px;border-left:6px solid #f7c948;border-radius:12px}
+.note{margin-top:15px;background:#eefbf3;padding:12px;border-radius:12px;color:#0f8f4f}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="hero">
+<img src="Logo Binawan.png">
+<h1>Simulasi Biaya Kuliah PMB</h1>
+<p>Universitas Binawan</p>
+</div>
+
+<div class="card">
+<div class="grid">
+<div class="field">
+<label>Program Studi</label>
+<select id="prodi"></select>
+</div>
+
+<div class="field checks">
+<label>Komponen Biaya</label>
+<label><input type="checkbox" id="bo" checked> BO</label>
+<label><input type="checkbox" id="bpi" checked> BPI</label>
+<label><input type="checkbox" id="seragam" checked> Seragam</label>
+<label><input type="checkbox" id="bahasa" checked> BPB Bahasa</label>
+</div>
+
+<div class="field">
+<label>Diskon UKT</label>
+<select id="diskon">
+<option value="0">0%</option>
+<option value="5">5%</option>
+<option value="10">10%</option>
+<option value="15">15%</option>
+</select>
+</div>
+
+<div class="field">
+<label>Semester</label>
+<select id="semester"></select>
+</div>
+
+<div class="field">
+<label>Opsi Pembayaran</label>
+<select id="cicilan">
+<option value="1">Tanpa Cicilan</option>
+<option value="2">2x Cicilan</option>
+<option value="3">3x Cicilan</option>
+<option value="4">4x Cicilan</option>
+<option value="5">5x Cicilan</option>
+</select>
+</div>
+</div>
+
+<button onclick="hitung()">Hitung Estimasi</button>
+
+<div class="result">
+<div class="row"><span>Total UKT</span><span id="ukt">-</span></div>
+<div class="row"><span>Potongan UKT</span><span id="potongan">-</span></div>
+<div class="row"><span>BO</span><span id="rbo">-</span></div>
+<div class="row"><span>BPI</span><span id="rbpi">-</span></div>
+<div class="row"><span>Seragam</span><span id="rseragam">-</span></div>
+<div class="row"><span>BPB Bahasa</span><span id="rbahasa">-</span></div>
+
+<div class="total">
+<p>Total Estimasi Biaya</p>
+<h2 id="total">Rp 0</h2>
+</div>
+
+<div class="cicilan" id="cicil">Simulasi cicilan akan muncul di sini</div>
+<div class="note" id="note">Catatan biaya</div>
+</div>
+</div>
+</div>
+
+<script>
+const data={
+"Manajemen":{ukt:7440000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"Bisnis Digital":{ukt:7520000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"Kesejahteraan Sosial":{ukt:6800000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"Psikologi":{ukt:7520000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"Farmasi":{ukt:8585000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"Gizi":{ukt:8755000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"K3":{ukt:9010000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"Fisioterapi":{ukt:9010000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"TLM":{ukt:8585000,max:8,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"BPI Rp5.000.000 dapat dicicil 2x"},
+"S2 Kesehatan Masyarakat":{ukt:8075000,max:4,bo:1000000,bpi:5000000,seragam:0,bahasa:0,note:"Program maksimal 4 semester"},
+"S1 Kebidanan":{ukt:9945000,max:8,bo:1000000,bpi:5000000,seragam:1150000,bahasa:0,note:"Biaya seragam Rp1.150.000"},
+"S1 Keperawatan International":{ukt:11900000,max:8,bo:1000000,bpi:10000000,seragam:0,bahasa:1500000,note:"BPB Bahasa Rp1.500.000 per semester + BPI Rp10.000.000"},
+"Profesi Ners":{ukt:15385000,max:2,bo:1000000,bpi:1350000,seragam:1150000,bahasa:0,note:"Program profesi maksimal 2 semester"},
+"Profesi Bidan":{ukt:8606250,max:2,bo:1000000,bpi:1350000,seragam:1150000,bahasa:0,note:"Program profesi maksimal 2 semester"}
+};
+
+const prodi=document.getElementById('prodi');
+for(let k in data){prodi.innerHTML+=`<option>${k}</option>`}
+
+function isiSemester(){
+ let m=data[prodi.value].max;
+ semester.innerHTML='';
+ for(let i=1;i<=m;i++) semester.innerHTML+=`<option value="${i}">${i}</option>`;
+}
+prodi.addEventListener('change',isiSemester);
+isiSemester();
+
+function rp(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
+
+function hitung(){
+ let p=data[prodi.value];
+ let sem=+semester.value;
+ let dis=+diskon.value;
+
+ let totalU=p.ukt*sem;
+ let pot=totalU*(dis/100);
+ let total=totalU-pot;
+
+ let boV=bo.checked?p.bo:0;
+ let bpiV=bpi.checked?p.bpi:0;
+ let serV=seragam.checked?p.seragam:0;
+ let bahV=bahasa.checked?(p.bahasa*sem):0;
+
+ total+=boV+bpiV+serV+bahV;
+
+ ukt.innerText=rp(totalU);
+ potongan.innerText='- '+rp(pot);
+ rbo.innerText=boV?rp(boV):'-';
+ rbpi.innerText=bpiV?rp(bpiV):'-';
+ rseragam.innerText=serV?rp(serV):'-';
+ rbahasa.innerText=bahV?rp(bahV):'-';
+ document.getElementById('total').innerText=rp(total);
+
+ let c=+cicilan.value;
+ document.getElementById('cicil').innerHTML=(c===1)
+ ? '<b>Pembayaran Sekaligus:</b> '+rp(total)
+ : '<b>'+c+'x Cicilan:</b> '+rp(total/c)+' per pembayaran';
+
+ document.getElementById('note').innerText=p.note;
+}
+</script>
+</body>
+</html>
